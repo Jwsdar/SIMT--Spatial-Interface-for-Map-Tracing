@@ -1,13 +1,13 @@
-#include "MapAdapter.h"
 #include <iostream>
 #include <algorithm>
 #include <unordered_map>
 #include <cmath>
+#include "MapAdapter.h"
 
 // Constructor
 OSMXmlAdapter::OSMXmlAdapter() : isLoaded(false) {}
 
-// Load the physical file into memory using TinyXML2
+// Method for Loading the physical file into memory using TinyXML2
 bool OSMXmlAdapter::loadMapFile(const std::string& filepath) {
     tinyxml2::XMLError result = xmlDoc.LoadFile(filepath.c_str());
     if (result == tinyxml2::XML_SUCCESS) {
@@ -18,10 +18,12 @@ bool OSMXmlAdapter::loadMapFile(const std::string& filepath) {
     return false;
 }
 
-// Pass 1 & Pass 2: Extract nodes and propagate area/campus names (like NUTECH)
+// Pass 1 & Pass 2: Extract nodes and propagate area names (like NUTECH)
 std::vector<Node> OSMXmlAdapter::extractNodes() {
     std::vector<Node> nodes;
+    // If OSM data has not been loaded return empy nodes vector
     if (!isLoaded) return nodes;
+
 
     tinyxml2::XMLElement* root = xmlDoc.FirstChildElement("osm");
     if (!root) return nodes;
@@ -29,10 +31,10 @@ std::vector<Node> OSMXmlAdapter::extractNodes() {
     // Map to keep track of where each Node ID lives in our 'nodes' vector (O(1) lookups)
     std::unordered_map<uint64_t, size_t> nodeIndexMap;
 
-    // --- PASS 1: Extract Base Nodes ---
+    // PASS 1: Extracting Base Nodes
     for (tinyxml2::XMLElement* nodeElem = root->FirstChildElement("node"); 
-         nodeElem != nullptr; 
-         nodeElem = nodeElem->NextSiblingElement("node")) {
+        nodeElem != nullptr; 
+        nodeElem = nodeElem->NextSiblingElement("node")) {
         
         Node n;
         nodeElem->QueryUnsigned64Attribute("id", &n.id);
@@ -42,8 +44,8 @@ std::vector<Node> OSMXmlAdapter::extractNodes() {
 
         // Check for direct point-of-interest name tags
         for (tinyxml2::XMLElement* tagElem = nodeElem->FirstChildElement("tag");
-             tagElem != nullptr;
-             tagElem = tagElem->NextSiblingElement("tag")) {
+            tagElem != nullptr;
+            tagElem = tagElem->NextSiblingElement("tag")) {
             
             const char* keyAttr = tagElem->Attribute("k");
             if (keyAttr && std::string(keyAttr) == "name") {
@@ -59,7 +61,7 @@ std::vector<Node> OSMXmlAdapter::extractNodes() {
         nodes.push_back(n);
     }
 
-    // --- PASS 2: Broadcast Boundary Names (e.g., Campus Polygons) ---
+    // PASS 2: Broadcast Boundary Names (e.g., Campus Polygons)
     for (tinyxml2::XMLElement* wayElem = root->FirstChildElement("way"); 
          wayElem != nullptr; 
          wayElem = wayElem->NextSiblingElement("way")) {
@@ -143,14 +145,8 @@ std::vector<Way> OSMXmlAdapter::extractWays() {
     return ways;
 }
 
-#include "MapAdapter.h"
-#include <iostream>
-#include <algorithm>
-#include <unordered_map>
 
-// ... (Keep your existing constructor, loadMapFile, extractNodes, and extractWays here)
-
-// Added: Function to display specific nodes by their 64-bit ID
+// Method to display specific nodes by their 64-bit ID
 void OSMXmlAdapter::displayNodeDetails(const std::vector<Node>& nodes, uint64_t targetId) {
     // Search the vector for the matching unique ID
     auto it = std::find_if(nodes.begin(), nodes.end(), [targetId](const Node& n) {

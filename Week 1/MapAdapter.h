@@ -5,7 +5,7 @@
 #include <vector>
 #include "tinyxml2.h"
 
-// Core geographic data structures
+// WBS 1.1.1: Core geographic data structures
 struct Node {
     uint64_t id;
     std::string name;
@@ -18,13 +18,13 @@ struct Way {
     std::vector<uint64_t> node_refs;
 };
 
-// Added for WBS 1.1.2: Normalized 2D Screen Coordinate Vector
+// WBS 1.1.2: Normalized 2D Screen Coordinate Vector
 struct ScreenPoint {
     float x;
     float y;
 };
 
-// Added for WBS 1.1.2: Bounding Box Boundaries
+// WBS 1.1.2: Bounding Box Boundaries
 struct BoundingBox {
     double minLat;
     double maxLat;
@@ -55,14 +55,14 @@ public:
     bool loadMapFile(const std::string& filepath) override;
     std::vector<Node> extractNodes() override;
     std::vector<Way> extractWays() override;
-    // Added: Targeted Node Inspector Function
+    // Targeted Node Inspector Method for Testing/Debugging
     void displayNodeDetails(const std::vector<Node>& nodes, uint64_t targetId);
 
-    // Added for WBS 1.1.2: Engine Interface methods
+    // WBS 1.1.2: Engine Interface methods
     bool extractBounds(); // Parses the <bounds> tag from the XML file
     BoundingBox getBounds() const { return mapBounds; }
     
-    // Normalizes global spatial nodes to fit your exact SFML viewport dimensions
+    // Normalizes global spatial nodes to fit our exact SFML viewport dimensions
     ScreenPoint projectToScreen(double lat, double lon, float windowWidth, float windowHeight);
 
 
