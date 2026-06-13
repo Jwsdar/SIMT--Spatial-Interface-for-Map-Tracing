@@ -1,0 +1,20 @@
+# Automatically find all .cpp files in the folder (main.cpp, SpatialGraph.cpp, etc.)
+SRC = $(wildcard *.cpp) $(wildcard src/*.cpp)
+OBJ = $(notdir $(SRC:.cpp=.o))
+
+# --- NEW: Variable for the Windows resource icon object ---
+ICON_OBJ = icon.o
+
+all: compile link
+
+# Added the icon compilation as a prerequisite requirement here
+compile:
+	g++ -std=c++17 -c $(SRC) -I"C:\Users\jawad\OneDrive\Documents\Libraries\SFML-3.0.2-windows-gcc-14.2.0-mingw-64-bit\SFML-3.0.2\include" -I"include" -DSFML_STATIC
+	windres resources.rc -O coff -o $(ICON_OBJ)
+
+# --- UPDATED: Appended $(ICON_OBJ) alongside your $(OBJ) list ---
+link: 
+	g++ $(OBJ) $(ICON_OBJ) -o SIMT.exe -L"C:\Users\jawad\OneDrive\Documents\Libraries\SFML-3.0.2-windows-gcc-14.2.0-mingw-64-bit\SFML-3.0.2\lib" -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lopengl32 -lfreetype -lwinmm -lgdi32 -lsfml-main -static -static-libgcc -static-libstdc++
+
+clean:
+	del /Q *.o SIMT.exe
